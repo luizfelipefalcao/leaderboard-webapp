@@ -1,29 +1,48 @@
 import React, { useCallback, useState, useRef, useEffect, JSX, useMemo } from "react";
 
 import springLogo from "../../assets/spring-logo.svg";
-import usersData from "../../../config-file/mock.json";
+import { UserService } from "../../adapters/services/User";
+
 import NewUserForm from "../../components/NewUserForm";
 import SortItemsRow from "../../components/SortItemsRow";
 import SearchUserRow from "../../components/SearchUserRow";
 import UserList from "../../components/UserList";
 import SpaceLine from "../../components/SpaceLine";
 import AddUserButton from "../../components/AddUserButton";
+import Loading from "../../components/Loading";
 
-export type User = { name: string; age: number; points: number; address: string };
+export type User = { id: string; name: string; age: number; points: number; address: string };
 
 function LeaderboadScreen(): JSX.Element {
-  const [users, setUsers] = useState<User[]>(usersData as User[]);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newUser, setNewUser] = useState<User>({ name: "", age: 20, points: 0, address: "" });
+  const [newUser, setNewUser] = useState<User>({ id: "", name: "", age: 20, points: 0, address: "" });
   const formRef = useRef<HTMLFormElement | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (showAddForm && formRef.current) {
       formRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [showAddForm]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true);
+        const userList = await UserService.retrieveUsers();
+        setUsers(userList);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setTimeout(() => setIsLoading(false), 500);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleDelete = useCallback((index: number) => {
     setUsers((prev) => prev.filter((_, i) => i !== index));
@@ -90,7 +109,7 @@ function LeaderboadScreen(): JSX.Element {
         onSubmitForm={(e) => {
           e.preventDefault();
           setUsers((prev) => [...prev, newUser]);
-          setNewUser({ name: "", age: 20, points: 0, address: "" });
+          setNewUser({ id: "", name: "", age: 20, points: 0, address: "" });
           setShowAddForm(false);
         }}
         ref={formRef}
@@ -113,10 +132,14 @@ function LeaderboadScreen(): JSX.Element {
         <SpaceLine />
 
         <div className="overflow-y-auto flex-1 p-6 h-90vh max-h-[calc(100vh-200px)]">
-          <div className="space-y-3">
-            {renderUserList}
-            {renderNewUserForm}
-          </div>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <div className="space-y-3">
+              {renderUserList}
+              {renderNewUserForm}
+            </div>
+          )}
         </div>
         <SpaceLine />
 
