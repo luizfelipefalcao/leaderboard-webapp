@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Anna",
+    "age": 28,
+    "points": 0,
+    "address": "123 Maple St, Springfield"
+  },
+  {
+    "name": "Bob",
+    "age": 31,
+    "points": 0,
+    "address": "456 Oak Ave, Springfield"
+  },
+  {
+    "name": "Carl",
+    "age": 26,
+    "points": 0,
+    "address": "789 Pine Rd, Springfield"
+  },
+  {
+    "name": "Diana",
+    "age": 34,
+    "points": 0,
+    "address": "321 Birch Blvd, Springfield"
+  },
+  {
+    "name": "Emma",
+    "age": 24,
+    "points": 0,
+    "address": "654 Cedar Ln, Springfield"
+  },
+  {
+    "name": "Fiona",
+    "age": 29,
+    "points": 0,
+    "address": "987 Maple St, Springfield"
+  },
+  {
+    "name": "George",
+    "age": 32,
+    "points": 0,
+    "address": "123 Maple St, Springfield"
+  }
+]
