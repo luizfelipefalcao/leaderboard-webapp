@@ -6,7 +6,7 @@ export class UserService {
     new Promise(async (resolve, reject) => {
       try {
         const users = await HttpClient.get("/users");
-        resolve(users.data);
+        resolve(users?.data);
       } catch (error) {
         reject(error);
       }
@@ -15,8 +15,8 @@ export class UserService {
   static addUser = (user: User): Promise<User> =>
     new Promise(async (resolve, reject) => {
       try {
-        const newUser: User = await HttpClient.post("/users", user);
-        resolve(newUser);
+        const newUser = await HttpClient.post("/users", user);
+        resolve(newUser?.data);
       } catch (error) {
         reject(error);
       }
@@ -25,8 +25,8 @@ export class UserService {
   static deleteUser = (id: string): Promise<User> =>
     new Promise(async (resolve, reject) => {
       try {
-        const newUser: User = await HttpClient.delete(`/users/${id}`);
-        resolve(newUser);
+        const newUser = await HttpClient.delete(`/users/${id}`);
+        resolve(newUser?.data);
       } catch (error) {
         reject(error);
       }

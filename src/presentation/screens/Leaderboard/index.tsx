@@ -59,11 +59,16 @@ function LeaderboadScreen(): JSX.Element {
     processDeleteUser();
   }, []);
 
+  const handleCleanAndShowAddForm = useCallback(() => {
+    setNewUser({ name: "", age: 0, points: 0, address: "" });
+    setShowAddForm((prev) => !prev);
+  }, []);
+
   const handleSubmitForm = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const addLocalUser = () => {
-        setUsers((prev) => [...prev, newUser]);
+      const addLocalUser = (new_user: User) => {
+        setUsers((prev) => [...prev, new_user].sort((a, b) => b.points - a.points));
         setNewUser({ name: "", age: 0, points: 0, address: "" });
         setShowAddForm(false);
       };
@@ -71,12 +76,12 @@ function LeaderboadScreen(): JSX.Element {
       const processAddUser = async () => {
         try {
           setIsLoading(true);
-          await UserService.addUser(newUser);
-          addLocalUser();
+          const new_user = await UserService.addUser(newUser);
+          addLocalUser(new_user);
         } catch (error) {
           console.error("Error adding user", error);
         } finally {
-          setTimeout(() => setIsLoading(false), 500);
+          setTimeout(() => setIsLoading(false), 800);
         }
       };
       processAddUser();
@@ -167,7 +172,7 @@ function LeaderboadScreen(): JSX.Element {
         </div>
         <SpaceLine />
 
-        <AddUserButton setShowAddForm={() => setShowAddForm((prev) => !prev)} showAddForm={showAddForm} />
+        <AddUserButton setShowAddForm={handleCleanAndShowAddForm} showAddForm={showAddForm} />
       </div>
     </div>
   );

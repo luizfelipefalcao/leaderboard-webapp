@@ -2,15 +2,14 @@ import React from "react";
 import { User } from "../../screens/Leaderboard";
 
 type NewUserFormProps = {
-  ref: any;
-  newUser: User;
-  setNewUser: (value: User) => void;
+  newUser: Omit<User, "age" | "points"> & { age: string | number; points: string | number };
+  setNewUser: (value: any) => void;
   onSubmitForm: (event: any) => void;
 };
 
-function NewUserForm({ ref, newUser, onSubmitForm, setNewUser }: NewUserFormProps): React.ReactElement {
+const NewUserForm = React.forwardRef<HTMLFormElement, NewUserFormProps>(({ newUser, onSubmitForm, setNewUser }, ref) => {
   return (
-    <form ref={ref} className="mt-4 space-y-3 bg-gray-100 rounded-md p-4" onSubmit={onSubmitForm}>
+    <form ref={ref} className="mt-4 space-y-3 bg-gray-100 rounded-md p-4" onSubmit={onSubmitForm} data-testid="new-user-form">
       <h2 className="text-lg font-semibold text-gray-800 mb-4">Create a New User:</h2>
 
       <div>
@@ -23,8 +22,11 @@ function NewUserForm({ ref, newUser, onSubmitForm, setNewUser }: NewUserFormProp
         <input
           type="number"
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          value={newUser?.age}
-          onChange={(e) => setNewUser({ ...newUser, age: Number(e.target?.value) })}
+          value={newUser.age}
+          onChange={(e) => {
+            const value = e.target.value;
+            setNewUser({ ...newUser, age: value });
+          }}
           min={0}
           required
         />
@@ -35,8 +37,11 @@ function NewUserForm({ ref, newUser, onSubmitForm, setNewUser }: NewUserFormProp
         <input
           type="number"
           className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          value={newUser?.points}
-          onChange={(e) => setNewUser({ ...newUser, points: Number(e.target?.value) })}
+          value={newUser.points}
+          onChange={(e) => {
+            const value = e.target.value;
+            setNewUser({ ...newUser, points: value });
+          }}
           min={0}
           required
         />
@@ -60,6 +65,6 @@ function NewUserForm({ ref, newUser, onSubmitForm, setNewUser }: NewUserFormProp
       </div>
     </form>
   );
-}
+});
 
 export default NewUserForm;

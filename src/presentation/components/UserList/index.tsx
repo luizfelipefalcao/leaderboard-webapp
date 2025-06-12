@@ -4,7 +4,7 @@ import { User } from "../../screens/Leaderboard";
 type UserListProps = {
   users: User[];
   onUserClick: (user: User) => void;
-  onDelete: (index: number, id?: string) => void;
+  onDelete: (index: number, id: string | undefined) => void;
   onIncrement: (index: number) => void;
   onDecrement: (index: number) => void;
   searchTerm: string;
@@ -36,7 +36,7 @@ function UserList({ users, searchTerm, selectedUser, onUserClick, onDelete, onIn
             onClick={() =>
               onDelete(
                 users.findIndex((u) => u === user),
-                user?._id
+                user._id ?? ""
               )
             }
             aria-label="Delete user"
