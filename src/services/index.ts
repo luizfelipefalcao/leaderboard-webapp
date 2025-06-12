@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const HttpClient = axios.create({
-  baseURL: "http://127.0.0.1:8000/",
+  baseURL: "https://leaderboard-backend-production-c31a.up.railway.app/",
   timeout: 30000,
   headers: { "Content-Type": "application/json" },
 });
