@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useRef, useEffect, JSX, useMemo } from "react";
 
+import { UserService } from "../../../services/User";
 import springLogo from "../../assets/spring-logo.svg";
-import { UserService } from "../../adapters/services/User";
 
 import NewUserForm from "../../components/NewUserForm";
 import SortItemsRow from "../../components/SortItemsRow";
@@ -11,16 +11,16 @@ import SpaceLine from "../../components/SpaceLine";
 import AddUserButton from "../../components/AddUserButton";
 import Loading from "../../components/Loading";
 
-export type User = { id: string; name: string; age: number; points: number; address: string };
+export type User = { _id?: string; name: string; age: number; points: number; address: string };
 
 function LeaderboadScreen(): JSX.Element {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newUser, setNewUser] = useState<User>({ id: "", name: "", age: 20, points: 0, address: "" });
-  const formRef = useRef<HTMLFormElement | null>(null);
+  const [newUser, setNewUser] = useState<User>({ name: "", age: 0, points: 0, address: "" });
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   useEffect(() => {
     if (showAddForm && formRef.current) {
@@ -35,22 +35,58 @@ function LeaderboadScreen(): JSX.Element {
         const userList = await UserService.retrieveUsers();
         setUsers(userList);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching users", error);
       } finally {
         setTimeout(() => setIsLoading(false), 500);
       }
     };
-
     fetchUsers();
   }, []);
 
-  const handleDelete = useCallback((index: number) => {
-    setUsers((prev) => prev.filter((_, i) => i !== index));
+  const handleDelete = useCallback((index: number, id?: string) => {
+    const processDeleteUser = async () => {
+      try {
+        setIsLoading(true);
+        if (!id) return;
+        await UserService.deleteUser(id);
+        setUsers((prev) => prev.filter((_, i) => i !== index));
+      } catch (error) {
+        console.error("Error deleting user", error);
+      } finally {
+        setTimeout(() => setIsLoading(false), 500);
+      }
+    };
+    processDeleteUser();
   }, []);
+
+  const handleSubmitForm = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const addLocalUser = () => {
+        setUsers((prev) => [...prev, newUser]);
+        setNewUser({ name: "", age: 0, points: 0, address: "" });
+        setShowAddForm(false);
+      };
+
+      const processAddUser = async () => {
+        try {
+          setIsLoading(true);
+          await UserService.addUser(newUser);
+          addLocalUser();
+        } catch (error) {
+          console.error("Error adding user", error);
+        } finally {
+          setTimeout(() => setIsLoading(false), 500);
+        }
+      };
+      processAddUser();
+    },
+    [newUser]
+  );
 
   const handleIncrement = useCallback(
     (index: number) => {
-      const updatedUsers = [...users].map((user, i) => (i === index ? { ...user, points: user.points + 1 } : user));
+      const updatedUsers = [...users].map((user, i) => (i === index ? { ...user, points: user?.points + 1 } : user));
       const sortedUsers = updatedUsers.sort((a, b) => b?.points - a?.points);
       setUsers(sortedUsers);
     },
@@ -59,7 +95,7 @@ function LeaderboadScreen(): JSX.Element {
 
   const handleDecrement = useCallback(
     (index: number) => {
-      const updatedUsers = [...users].map((user, i) => (i === index ? { ...user, points: Math.max(0, user.points - 1) } : user));
+      const updatedUsers = [...users].map((user, i) => (i === index ? { ...user, points: Math.max(0, user?.points - 1) } : user));
       const sortedUsers = updatedUsers.sort((a, b) => b?.points - a?.points);
       setUsers(sortedUsers);
     },
@@ -103,20 +139,8 @@ function LeaderboadScreen(): JSX.Element {
   const renderNewUserForm = useMemo(() => {
     if (!showAddForm || !newUser) return null;
 
-    return (
-      <NewUserForm
-        newUser={newUser}
-        onSubmitForm={(e) => {
-          e.preventDefault();
-          setUsers((prev) => [...prev, newUser]);
-          setNewUser({ id: "", name: "", age: 20, points: 0, address: "" });
-          setShowAddForm(false);
-        }}
-        ref={formRef}
-        setNewUser={setNewUser}
-      />
-    );
-  }, [newUser, showAddForm]);
+    return <NewUserForm newUser={newUser} onSubmitForm={handleSubmitForm} ref={formRef} setNewUser={setNewUser} />;
+  }, [handleSubmitForm, newUser, showAddForm]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 sm:p-0 p-4">

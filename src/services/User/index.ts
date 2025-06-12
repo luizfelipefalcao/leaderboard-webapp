@@ -1,5 +1,5 @@
-import { HttpClient } from "../../infrastructure/HttpClientProvider";
-import { User } from "../../screens/Leaderboard";
+import { HttpClient } from "..";
+import { User } from "../../presentation/screens/Leaderboard";
 
 export class UserService {
   static retrieveUsers = (): Promise<User[]> =>
@@ -12,10 +12,10 @@ export class UserService {
       }
     });
 
-  static updateUser = (user: User): Promise<User> =>
+  static addUser = (user: User): Promise<User> =>
     new Promise(async (resolve, reject) => {
       try {
-        const newUser: User = await HttpClient.put(`/users/${user?.id}`, user);
+        const newUser: User = await HttpClient.post("/users", user);
         resolve(newUser);
       } catch (error) {
         reject(error);
